@@ -1,1 +1,1 @@
-# Drawing_with_LLM
+# Drawing-with-LLM
