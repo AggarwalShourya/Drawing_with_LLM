@@ -1,41 +1,65 @@
-# Drawing-with-LLM
+# 🖌️ Drawing with LLMs: Prompt-to-SVG Generation
 
-## Objective 
-Given a text prompt describing an image, the task is to generate Scalable Vector Graphics (SVG) code that renders it as an image as closely as possible. We can use any sort open source LLMs/ Vision Language Models.
+## 🚀 Objective  
+Transform a **natural language prompt** into a **scalable vector drawing (SVG)**.  
+The goal? Push the boundaries of multimodal AI by turning visual imagination into crisp, vectorized art — powered by **open-source language and vision models**.
 
-## Approaches tried
-First off tried with Zero shot/few shot learning to test the SVG code generational abilities of various opensource models. The models tested include:
-  Qwen 2.5 LM
-  LLama 3.2B instruct
-  Deepseek R1
-  Gemma2 
+---
 
-The best results were given by Qwen: We tried finetuning it using QLoRA/LoRA, not much improvement in the results though. Also tried GRPO/DPO but similar results.
+## 🧪 Approaches Explored
 
-Decided to build a pipeline which generates a png/jpg image from prompt then renders the svg code.
-prompt->image->svg
+### 🧠 Phase 1: Can LLMs Draw?
 
-  for the first step of this pipeline using prompt->image: we utillised tried diffusion models like **Stable diffusion** by compvis and **Flux**.
+We began by testing the SVG-generating capabilities of popular LLMs using **zero-shot** and **few-shot** prompting. Models evaluated:
 
-  for the second step image->svg of this pipeline: we defined a function which takes in a PIL image and performs the following steps.
+- 🤖 **Qwen 2.5 LM**
+- 🦙 **LLaMA 3 (3.2B Instruct)**
+- 🔬 **Deepseek R1**
+- 🌟 **Gemma 2**
 
-    **Color Quantization (K-means)**:
-    The RGB pixel data is clustered into a fixed number of dominant colors (default: 12) using K-means. This reduces the image to essential color regions.
-    
-   **Contour Detection per Color**:
-    For each quantized color, OpenCV isolates that color's region using a mask, and then extracts its contours — shapes made of continuous pixels of that color.
-    
-    **Shape Simplification**:
-    Each contour is simplified using approxPolyDP, which approximates the shape with fewer points (like turning curves into polygons).
-    
-    **Feature Ranking**:
-    Each simplified polygon is scored based on:
-    Its area
-    Proximity to the image center
-    Simplicity (fewer points → higher score)
-    
-    **SVG Building**:
-    The SVG starts with an opening <svg> tag and a <rect> background. Then, for each high-ranking feature, it adds:
-  
+**Best zero-shot performer:** 🔥 Qwen 2.5  
+We then tried fine-tuning with **QLoRA/LoRA**, and even reward-model techniques like **GRPO** and **DPO** — but gains were minimal.
 
+---
 
+## 🔁 New Pipeline: Prompt → Image → SVG
+
+To tackle the problem more effectively, we restructured the task into a **two-step pipeline**:
+
+### 🖼️ Step 1: Prompt → Image  
+For generating raster images from prompts, we explored:
+
+- 🎨 **Stable Diffusion** (by CompVis)
+- 🌈 **Flux**
+
+These diffusion models offered flexible and high-quality renderings as input for the next stage.
+
+---
+
+### ✂️ Step 2: Image → SVG  
+
+To convert a raster image (e.g., PNG, JPG) into SVG format, we built a **custom vectorizer** that processes a `PIL.Image` with the following steps:
+
+#### 🧵 Color Quantization (K-Means Clustering)
+- Dominant colors (default: 12) are extracted using **K-Means**, simplifying the image into essential visual elements.
+
+#### ✏️ Contour Detection
+- For each color, **OpenCV** extracts region contours — identifying the object-like shapes in the image.
+
+#### 🔍 Shape Simplification
+- Contours are simplified using `approxPolyDP`, converting blobs into **clean polygon outlines**.
+
+#### 📊 Feature Ranking
+Each shape is ranked based on:
+- **Area**
+- **Proximity to image center**
+- **Geometric simplicity** (fewer polygon points)
+
+#### 🧱 SVG Construction
+The output is a layered SVG file:
+```xml
+<svg>
+  <rect fill="bg_color" />
+  <polygon points="..." fill="#hex" />
+  ...
+</svg>
