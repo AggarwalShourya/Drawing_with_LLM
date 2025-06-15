@@ -63,3 +63,6 @@ The output is a layered SVG file:
   <polygon points="..." fill="#hex" />
   ...
 </svg>
+
+
+##### The final best results came through using a pipeline https://github.com/yuval-alaluf/Attend-and-Excite which tends to focus on some specified tokens whose indices are passed. The notebook is attached with for the best results.
